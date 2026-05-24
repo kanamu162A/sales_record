@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Shatova · Smart Sales · PostgreSQL</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+      transition: background 0.2s ease, color 0.2s ease;
+      padding: 1rem;
+    }
+
+    :root {
+      --bg-body: #f0f4f9;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --text-main: #1a2c3e;
+      --text-secondary: #2c4f6e;
+      --text-muted: #6c86a3;
+      --border: #e4edf5;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --primary-glow: rgba(59,130,246,0.15);
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      --pink: #ec489a;
+      --card-shadow: 0 2px 8px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
+      --btn-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    body.dark {
+      --bg-body: #0b1120;
+      --surface: #172032;
+      --surface-soft: #111927;
+      --text-main: #eef3ff;
+      --text-secondary: #b9cef0;
+      --text-muted: #7f95b5;
+      --border: #263a55;
+      --card-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* smooth scroll & animations */
+    html { scroll-behavior: smooth; }
+    .container { max-width: 1280px; margin: 0 auto; }
+
+    /* header */
+    .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .logo-badge {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 2rem;
+      padding: 6px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.2px; }
+
+    /* buttons */
+    .add-btn {
+      background: var(--primary);
+      color: white;
+      border-radius: 2rem;
+      padding: 8px 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .add-btn:active { transform: scale(0.96); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: 6px 14px;
+      font-weight: 500;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-outline:active { transform: scale(0.96); background: var(--surface-soft); }
+    .btn-glow {
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      border: none;
+      border-radius: 2rem;
+      padding: 7px 18px;
+      font-weight: 600;
+      color: white;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .btn-glow:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* slim KPI rows */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border-radius: 1.5rem;
+      padding: 12px 6px;
+      text-align: center;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      box-shadow: var(--card-shadow);
+      cursor: default;
+    }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+    .kpi-card i { font-size: 1.4rem; margin-bottom: 4px; display: inline-block; }
+    .kpi-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-top: 2px; }
+    .kpi-value { font-size: 1.2rem; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+    .border-blue { border-bottom: 2px solid var(--primary); }
+    .border-green { border-bottom: 2px solid var(--success); }
+    .border-amber { border-bottom: 2px solid var(--warning); }
+    .border-purple { border-bottom: 2px solid var(--purple); }
+    .border-pink { border-bottom: 2px solid var(--pink); }
+    .border-slate { border-bottom: 2px solid #64748b; }
+
+    /* cards */
+    .glass-card {
+      background: var(--surface);
+      border-radius: 1.5rem;
+      border: 1px solid var(--border);
+      padding: 0.9rem;
+      margin-bottom: 18px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .input-modern {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      width: 100%;
+      transition: 0.2s;
+    }
+    .input-modern:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+    /* tables */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: left; padding: 10px 8px; font-size: 0.65rem; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.75rem; }
+    .badge {
+      background: var(--surface-soft);
+      padding: 2px 10px;
+      border-radius: 2rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+    }
+    .action-edit, .action-delete { cursor: pointer; margin: 0 4px; opacity: 0.7; transition: 0.1s; display: inline-block; }
+    .action-edit:hover { opacity: 1; color: var(--primary); }
+    .action-delete:hover { opacity: 1; color: var(--danger); }
+
+    /* filter bar */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+    .filter-group { flex: 1; min-width: 110px; }
+    .filter-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; color: var(--text-muted); display: block; }
+    .filter-input {
+      background: var(--surface-soft); border: 1px solid var(--border); border-radius: 2rem;
+      padding: 6px 12px; width: 100%; font-size: 0.75rem; color: var(--text-main);
+    }
+
+    /* modal */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-content {
+      background: var(--surface); border-radius: 2rem; padding: 20px; width: 260px;
+      text-align: center; border: 1px solid var(--border);
+    }
+    .theme-card {
+      display: inline-block; background: var(--surface-soft); border: 1px solid var(--border);
+      border-radius: 2rem; padding: 6px 14px; margin: 0 4px; font-weight: 600; cursor: pointer;
+      transition: 0.1s;
+    }
+    .theme-card.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* form animation */
+    .form-hidden { display: none; }
+    .form-visible { display: block; animation: fadeSlide 0.25s ease; }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .toast-msg {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--surface); border-left: 4px solid var(--primary); padding: 8px 20px;
+      border-radius: 2rem; font-weight: 500; z-index: 1100; font-size: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      animation: fadeSlide 0.2s ease;
+    }
+    canvas { max-height: 160px; width: 100%; }
+    @media (max-width: 640px) {
+      .kpi-value { font-size: 1rem; }
+      .kpi-card i { font-size: 1.2rem; }
+      .kpi-card { padding: 8px 4px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="flex-between" style="margin-bottom: 1.2rem;">
+    <div class="flex-between" style="gap: 12px;">
+      <div class="logo-badge"><i class="fas fa-chart-line" style="color:white;"></i><span style="color:white; font-weight:700;">SHATOVA</span></div>
+      <h1>Smart Sales</h1>
+    </div>
+    <div class="flex-between" style="gap: 8px;">
+      <button id="showFormBtn" class="add-btn"><i class="fas fa-plus-circle"></i> Add</button>
+      <button id="settingsBtn" class="btn-outline"><i class="fas fa-cog"></i></button>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <h4 style="margin-bottom: 12px;"><i class="fas fa-palette"></i> Theme</h4>
+      <div>
+        <span class="theme-card" data-theme="light"><i class="fas fa-sun"></i> Light</span>
+        <span class="theme-card" data-theme="dark"><i class="fas fa-moon"></i> Dark</span>
+      </div>
+      <button id="closeModalBtn" class="btn-outline" style="margin-top: 16px;">Close</button>
+    </div>
+  </div>
+
+  <!-- Sale Form (slim) -->
+  <div id="saleFormContainer" class="form-hidden glass-card" style="margin-bottom: 18px;">
+    <div class="flex-between" style="margin-bottom: 8px;"><span class="font-bold" id="formTitle" style="font-size: 0.85rem;">➕ NEW SALE</span><i class="fas fa-calculator text-primary" style="color:var(--primary);"></i></div>
+    <div class="flex-between" style="gap: 8px; flex-wrap: wrap;">
+      <input type="date" id="txDate" class="input-modern" style="flex:1; min-width: 120px;">
+      <select id="txCategory" class="input-modern" style="flex:1;"><option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option></select>
+      <select id="txProvider" class="input-modern" style="flex:1;"><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>Other</option></select>
+      <input type="number" id="txCostPrice" placeholder="Cost (₦)" class="input-modern" style="flex:1;">
+      <input type="number" id="txSellingPrice" placeholder="Selling (₦)" class="input-modern" style="flex:1;">
+      <div class="flex-between" style="gap: 6px;">
+        <button id="saveTxBtn" class="btn-glow"><i class="fas fa-save"></i> Save</button>
+        <button id="cancelEditBtn" class="btn-outline hidden">Cancel</button>
+        <button id="hideFormBtn" class="btn-outline"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="text-muted" style="font-size: 9px; margin-top: 6px;"><i class="fas fa-magic"></i> Profit = Sell − Buy</div>
+  </div>
+
+  <!-- THREE SLIM KPI ROWS -->
+  <div class="kpi-row">
+    <div class="kpi-card border-blue"><i class="fas fa-receipt"></i><div class="kpi-label">TRANSACTIONS</div><div class="kpi-value" id="totalTxDisplay">—</div></div>
+    <div class="kpi-card border-green"><i class="fas fa-wifi"></i><div class="kpi-label">DATA PROFIT</div><div class="kpi-value" id="dataProfitTotal">—</div></div>
+    <div class="kpi-card border-amber"><i class="fas fa-phone-alt"></i><div class="kpi-label">AIRTIME PROFIT</div><div class="kpi-value" id="airtimeProfitTotal">—</div></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card border-purple"><i class="fas fa-bolt"></i><div class="kpi-label">ELECTRICITY</div><div class="kpi-value" id="electricityProfitTotal">—</div></div>
+    <div class="kpi-card border-pink"><i class="fas fa-file-invoice"></i><div class="kpi-label">BILLS PROFIT</div><div class="kpi-value" id="billsProfitTotal">—</div></div>
+    <div class="kpi-card border-slate"><i class="fas fa-tower-cell"></i><div class="kpi-label">PROVIDERS</div><div class="kpi-value" id="activeProvidersCount">—</div></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card border-blue"><i class="fas fa-chart-line"></i><div class="kpi-label">PROFIT MARGIN</div><div class="kpi-value" id="profitMarginDisplay">—</div></div>
+    <div class="kpi-card border-green"><i class="fas fa-coins"></i><div class="kpi-label">TOTAL PROFIT</div><div class="kpi-value" id="totalProfitDisplay">—</div></div>
+    <div class="kpi-card border-amber"><i class="fas fa-wallet"></i><div class="kpi-label">TOTAL REVENUE</div><div class="kpi-value" id="totalRevenueDisplay">—</div></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="glass-card"><div class="flex-between" style="margin-bottom: 6px;"><i class="fas fa-chart-pie" style="color:var(--primary);"></i><span class="font-bold" style="font-size: 0.8rem;">Profit by Category</span></div><canvas id="categoryChart" height="130"></canvas></div>
+  <div class="glass-card"><div class="flex-between" style="margin-bottom: 6px;"><i class="fas fa-chart-simple" style="color:var(--warning);"></i><span class="font-bold" style="font-size: 0.8rem;">Profit by Provider</span></div><canvas id="providerChart" height="130"></canvas></div>
+
+  <!-- Filters -->
+  <div class="glass-card">
+    <div class="filter-bar">
+      <div class="filter-group"><label class="filter-label">From</label><input type="date" id="filterStartDate" class="filter-input"></div>
+      <div class="filter-group"><label class="filter-label">To</label><input type="date" id="filterEndDate" class="filter-input"></div>
+      <div class="filter-group"><label class="filter-label">Category</label><select id="filterCategory" class="filter-input"><option value="all">All</option><option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option></select></div>
+      <div class="filter-group"><label class="filter-label">Provider</label><select id="filterProvider" class="filter-input"><option value="all">All</option><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>Other</option></select></div>
+      <div class="filter-group" style="flex:0;"><button id="resetFilterBtn" class="btn-outline"><i class="fas fa-undo-alt"></i> Reset</button></div>
+      <div class="filter-group" style="flex:0;"><button id="exportCSVBtn" class="btn-outline"><i class="fas fa-download"></i> CSV</button></div>
+    </div>
+  </div>
+
+  <!-- Transactions table -->
+  <div class="glass-card" style="padding: 0; overflow-x: auto;">
+    <div style="padding: 0.8rem; border-bottom: 1px solid var(--border);"><i class="fas fa-list-ul" style="color:var(--primary);"></i> <span class="font-bold" style="font-size: 0.8rem;">Sales Ledger</span></div>
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Cat</th><th>Provider</th><th>Cost</th><th>Selling</th><th>Profit</th><th style="text-align:center">Actions</th></tr></thead>
+      <tbody id="transactionTableBody"><tr><td colspan="7" class="text-center" style="padding: 32px;">Loading from PostgreSQL... ✨</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const API_BASE = '/api/transactions';
+  let transactions = [];
+  let editModeId = null;
+  let categoryChart, providerChart;
+  let isProcessing = false;
+
+  function showMessage(msg, isErr = false) {
+    let toast = document.createElement('div');
+    toast.className = 'toast-msg';
+    toast.style.borderLeftColor = isErr ? '#ef4444' : '#3b82f6';
+    toast.innerText = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  }
+
+  function getProfit(item) {
+    let profit = (item.sellingPrice || 0) - (item.costPrice || 0);
+    if (item.profit !== undefined && typeof item.profit === 'number' && !isNaN(item.profit)) profit = item.profit;
+    return isNaN(profit) ? 0 : profit;
+  }
+
+  async function fetchAll() {
+    try {
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      return data.map(t => ({
+        id: t.id, date: t.date, category: t.category, provider: t.provider,
+        costPrice: Number(t.cost_price) || 0,
+        sellingPrice: Number(t.selling_price) || 0,
+        profit: (t.profit !== undefined && t.profit !== null) ? Number(t.profit) : (Number(t.selling_price) - Number(t.cost_price))
+      }));
+    } catch(e) { showMessage('Load failed: ' + e.message, true); return []; }
+  }
+
+  async function insertTx(tx) {
+    const res = await fetch(API_BASE, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ date: tx.date, category: tx.category, provider: tx.provider, cost_price: tx.costPrice, selling_price: tx.sellingPrice })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message); }
+    return await res.json();
+  }
+
+  async function updateTx(id, tx) {
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ date: tx.date, category: tx.category, provider: tx.provider, cost_price: tx.costPrice, selling_price: tx.sellingPrice })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message); }
+  }
+
+  async function deleteTxAPI(id) {
+    const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message); }
+  }
+
+  async function loadData() {
+    transactions = await fetchAll();
+    renderAll();
+  }
+
+  function getFiltered() {
+    let f = [...transactions];
+    const start = document.getElementById('filterStartDate').value;
+    const end = document.getElementById('filterEndDate').value;
+    const cat = document.getElementById('filterCategory').value;
+    const prov = document.getElementById('filterProvider').value;
+    if (start) f = f.filter(t => t.date >= start);
+    if (end) f = f.filter(t => t.date <= end);
+    if (cat !== 'all') f = f.filter(t => t.category === cat);
+    if (prov !== 'all') f = f.filter(t => t.provider === prov);
+    return f;
+  }
+
+  function computeTotals(filtered) {
+    let revenue = 0, totalProfit = 0, dataP = 0, airP = 0, elecP = 0, billsP = 0;
+    let providers = new Set();
+    filtered.forEach(t => {
+      const profitVal = getProfit(t);
+      revenue += t.sellingPrice;
+      totalProfit += profitVal;
+      if (t.category === 'Data') dataP += profitVal;
+      else if (t.category === 'Airtime') airP += profitVal;
+      else if (t.category === 'Electricity') elecP += profitVal;
+      else if (t.category === 'Bills') billsP += profitVal;
+      providers.add(t.provider);
+    });
+    const margin = revenue > 0 ? (totalProfit / revenue * 100) : 0;
+    return { revenue, totalProfit, dataP, airP, elecP, billsP, activeProv: providers.size, margin };
+  }
+
+  function getCatMap(filtered) {
+    let map = { Data:0, Airtime:0, Electricity:0, Bills:0 };
+    filtered.forEach(t => { if (map[t.category] !== undefined) map[t.category] += getProfit(t); });
+    return map;
+  }
+  function getProvMap(filtered) {
+    let map = {};
+    filtered.forEach(t => { map[t.provider] = (map[t.provider] || 0) + getProfit(t); });
+    return map;
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('transactionTableBody');
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding: 32px;">✨ No sales yet. Add your first transaction ✨</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(tx => {
+      const profitVal = getProfit(tx);
+      return `<tr>
+        <td>${tx.date}</td>
+        <td><span class="badge">${tx.category}</span></td>
+        <td>${tx.provider}</td>
+        <td>₦${tx.costPrice.toLocaleString()}</td>
+        <td>₦${tx.sellingPrice.toLocaleString()}</td>
+        <td style="color:var(--primary); font-weight:600;">₦${profitVal.toLocaleString()}</td>
+        <td style="text-align:center">
+          <span onclick="editTx(${tx.id})" class="action-edit"><i class="fas fa-pen"></i></span>
+          <span onclick="deleteTx(event, ${tx.id})" class="action-delete"><i class="fas fa-trash-alt"></i></span>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateCharts(catMap, provMap) {
+    const ctxCat = document.getElementById('categoryChart').getContext('2d');
+    const ctxProv = document.getElementById('providerChart').getContext('2d');
+    if (categoryChart) categoryChart.destroy();
+    if (providerChart) providerChart.destroy();
+    const txtColor = getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#2c5270';
+    const gridColor = getComputedStyle(document.body).getPropertyValue('--border').trim() || '#e2edfb';
+    categoryChart = new Chart(ctxCat, {
+      type: 'doughnut',
+      data: { labels: Object.keys(catMap), datasets: [{ data: Object.values(catMap), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#8b5cf6'], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, color: txtColor } } } }
+    });
+    providerChart = new Chart(ctxProv, {
+      type: 'bar',
+      data: { labels: Object.keys(provMap), datasets: [{ label: 'Profit (₦)', data: Object.values(provMap), backgroundColor: '#f97316', borderRadius: 6 }] },
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { font: { size: 9 }, color: txtColor } } }, scales: { y: { ticks: { color: txtColor }, grid: { color: gridColor } }, x: { ticks: { color: txtColor }, grid: { display: false } } } }
+    });
+  }
+
+  function renderAll() {
+    const filtered = getFiltered();
+    const totals = computeTotals(filtered);
+    const isEmpty = filtered.length === 0;
+    const setKPI = (id, value, prefix = '₦', suffix = '') => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isEmpty && (value === 0 || value === undefined)) { el.innerHTML = '—'; return; }
+      let num = typeof value === 'number' && !isNaN(value) ? value : 0;
+      el.innerHTML = prefix + num.toLocaleString() + suffix;
+    };
+    document.getElementById('totalTxDisplay').innerHTML = isEmpty ? '—' : filtered.length;
+    setKPI('totalRevenueDisplay', totals.revenue);
+    setKPI('totalProfitDisplay', totals.totalProfit);
+    setKPI('dataProfitTotal', Math.round(totals.dataP));
+    setKPI('airtimeProfitTotal', Math.round(totals.airP));
+    setKPI('electricityProfitTotal', Math.round(totals.elecP));
+    setKPI('billsProfitTotal', Math.round(totals.billsP));
+    setKPI('activeProvidersCount', totals.activeProv, '', '');
+    setKPI('profitMarginDisplay', totals.margin, '', '%');
+    updateCharts(getCatMap(filtered), getProvMap(filtered));
+    renderTable(filtered);
+  }
+
+  async function saveTransaction() {
+    if (isProcessing) { showMessage("Please wait...", true); return; }
+    const date = document.getElementById('txDate').value;
+    const category = document.getElementById('txCategory').value;
+    const provider = document.getElementById('txProvider').value;
+    const cost = parseFloat(document.getElementById('txCostPrice').value);
+    const sell = parseFloat(document.getElementById('txSellingPrice').value);
+    if (!date) { showMessage("Select date", true); return; }
+    if (isNaN(cost) || cost <= 0) { showMessage("Valid cost", true); return; }
+    if (isNaN(sell) || sell <= 0) { showMessage("Valid selling price", true); return; }
+    if (sell < cost) { showMessage("Selling cannot be less than cost", true); return; }
+
+    const saveBtn = document.getElementById('saveTxBtn');
+    isProcessing = true;
+    saveBtn.disabled = true;
+    const originalHtml = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Saving';
+    try {
+      if (editModeId !== null) {
+        await updateTx(editModeId, { date, category, provider, costPrice: cost, sellingPrice: sell });
+        showMessage("Updated");
+        editModeId = null;
+        document.getElementById('formTitle').innerText = "➕ NEW SALE";
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+      } else {
+        await insertTx({ date, category, provider, costPrice: cost, sellingPrice: sell });
+        showMessage("Sale added");
+      }
+      await loadData();
+      clearForm();
+      hideForm();
+    } catch (e) { showMessage("Error: " + e.message, true); }
+    finally {
+      isProcessing = false;
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = originalHtml;
+    }
+  }
+
+  window.editTx = (id) => {
+    if (isProcessing) { showMessage("Please wait", true); return; }
+    const tx = transactions.find(t => t.id === id);
+    if (!tx) return;
+    editModeId = id;
+    document.getElementById('txDate').value = tx.date;
+    document.getElementById('txCategory').value = tx.category;
+    document.getElementById('txProvider').value = tx.provider;
+    document.getElementById('txCostPrice').value = tx.costPrice;
+    document.getElementById('txSellingPrice').value = tx.sellingPrice;
+    document.getElementById('formTitle').innerText = "✏️ EDIT SALE";
+    document.getElementById('cancelEditBtn').classList.remove('hidden');
+    showForm();
+  };
+
+  window.deleteTx = async (event, id) => {
+    event.stopPropagation();
+    if (isProcessing) { showMessage("Action in progress", true); return; }
+    if (!confirm("Delete this sale?")) return;
+    isProcessing = true;
+    try {
+      await deleteTxAPI(id);
+      showMessage("Deleted");
+      await loadData();
+      if (editModeId === id) cancelEdit();
+    } catch (e) { showMessage("Delete failed: " + e.message, true); }
+    finally { isProcessing = false; }
+  };
+
+  function cancelEdit() {
+    editModeId = null;
+    document.getElementById('formTitle').innerText = "➕ NEW SALE";
+    document.getElementById('cancelEditBtn').classList.add('hidden');
+    clearForm();
+  }
+  function clearForm() {
+    document.getElementById('txDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('txCategory').value = 'Data';
+    document.getElementById('txProvider').value = 'MTN';
+    document.getElementById('txCostPrice').value = '';
+    document.getElementById('txSellingPrice').value = '';
+  }
+  function showForm() {
+    const cont = document.getElementById('saleFormContainer');
+    cont.classList.remove('form-hidden');
+    cont.classList.add('form-visible');
+  }
+  function hideForm() {
+    const cont = document.getElementById('saleFormContainer');
+    cont.classList.remove('form-visible');
+    cont.classList.add('form-hidden');
+    cancelEdit();
+  }
+  function resetFilters() {
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    document.getElementById('filterCategory').value = 'all';
+    document.getElementById('filterProvider').value = 'all';
+    renderAll();
+  }
+  function exportCSV() {
+    const filtered = getFiltered();
+    if (!filtered.length) { showMessage("No data", true); return; }
+    let csv = [["Date","Category","Provider","CostPrice","SellingPrice","Profit"]];
+    filtered.forEach(t => csv.push([t.date, t.category, t.provider, t.costPrice, t.sellingPrice, getProfit(t)]));
+    const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `shatova_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // Theme & Modal
+  const modal = document.getElementById('settingsModal');
+  const settingsBtn = document.getElementById('settingsBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  settingsBtn.onclick = () => modal.style.display = 'flex';
+  closeModalBtn.onclick = () => modal.style.display = 'none';
+  modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+  function setTheme(theme) {
+    if (theme === 'dark') document.body.classList.add('dark');
+    else document.body.classList.remove('dark');
+    localStorage.setItem('shatova_theme', theme);
+    document.querySelectorAll('.theme-card').forEach(card => {
+      if (card.getAttribute('data-theme') === theme) card.classList.add('active');
+      else card.classList.remove('active');
+    });
+    renderAll();
+    modal.style.display = 'none';
+  }
+  document.querySelectorAll('.theme-card').forEach(c => c.addEventListener('click', () => setTheme(c.getAttribute('data-theme'))));
+  const savedTheme = localStorage.getItem('shatova_theme');
+  if (savedTheme === 'dark') setTheme('dark'); else setTheme('light');
+
+  // Event listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    document.getElementById('txDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('saveTxBtn').addEventListener('click', saveTransaction);
+    document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+    document.getElementById('resetFilterBtn').addEventListener('click', resetFilters);
+    document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
+    document.getElementById('filterStartDate').addEventListener('change', () => renderAll());
+    document.getElementById('filterEndDate').addEventListener('change', () => renderAll());
+    document.getElementById('filterCategory').addEventListener('change', () => renderAll());
+    document.getElementById('filterProvider').addEventListener('change', () => renderAll());
+    document.getElementById('showFormBtn').addEventListener('click', showForm);
+    document.getElementById('hideFormBtn').addEventListener('click', hideForm);
+  });
+</script>
+</body>
+</html>
