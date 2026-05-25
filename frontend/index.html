@@ -3,385 +3,202 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Shatova · Smart Sales · Pro Analytics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <title>Shatova · Slim Sales</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg-body);
       color: var(--text-main);
-      transition: background 0.3s ease, color 0.3s ease;
-      padding: 1rem;
+      transition: background 0.2s;
+      padding: 0.5rem;
+      font-size: 0.8rem;
     }
-
     :root {
-      --bg-body: #f4f7fc;
-      --surface: rgba(255, 255, 255, 0.96);
-      --surface-soft: #f9fbfd;
+      --bg-body: #f0f4f9;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
       --text-main: #1a2c3e;
-      --text-secondary: #2c4f6e;
       --text-muted: #6c86a3;
-      --border: #e2edf5;
+      --border: #e4edf5;
       --primary: #3b82f6;
-      --primary-dark: #2563eb;
-      --primary-glow: rgba(59,130,246,0.2);
       --danger: #ef4444;
       --success: #10b981;
       --warning: #f59e0b;
       --purple: #8b5cf6;
       --pink: #ec489a;
-      --card-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
-      --card-hover: 0 12px 28px rgba(0,0,0,0.08);
+      --card-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-
     body.dark {
-      --bg-body: #0a0f1c;
-      --surface: rgba(23, 32, 50, 0.98);
-      --surface-soft: #111a28;
+      --bg-body: #0b1120;
+      --surface: #172032;
+      --surface-soft: #111927;
       --text-main: #eef3ff;
-      --text-secondary: #b9cef0;
-      --text-muted: #8aa0c0;
-      --border: #253450;
-      --card-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      --text-muted: #7f95b5;
+      --border: #263a55;
     }
-
-    html { scroll-behavior: smooth; }
-    .container { max-width: 1300px; margin: 0 auto; }
-
-    /* Animations */
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .glass-card, .kpi-card, .quick-btn, .btn-glow, .add-btn {
-      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
-    .glass-card {
-      animation: fadeSlideUp 0.4s ease backwards;
-      animation-delay: calc(var(--order, 0) * 0.03s);
-    }
-    .data-table tbody tr {
-      transition: background 0.15s, transform 0.1s;
-    }
-    .data-table tbody tr:hover {
-      background: var(--surface-soft);
-      transform: scale(1.002);
-    }
-
-    .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
     .logo-badge {
       background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      border-radius: 2rem;
-      padding: 6px 18px;
+      border-radius: 1.5rem;
+      padding: 3px 10px;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 12px rgba(59,130,246,0.3);
-    }
-    h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.3px; background: linear-gradient(135deg, var(--text-main), var(--primary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-
-    .add-btn {
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      color: white;
-      border-radius: 2rem;
-      padding: 8px 22px;
-      font-weight: 600;
-      font-size: 0.8rem;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .add-btn:active { transform: scale(0.96); }
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 2rem;
-      padding: 6px 16px;
-      font-weight: 500;
+      gap: 6px;
       font-size: 0.7rem;
-      cursor: pointer;
-      backdrop-filter: blur(2px);
     }
-    .btn-outline:active { transform: scale(0.96); background: var(--surface-soft); }
-    .btn-glow {
-      background: linear-gradient(135deg, var(--primary), #6366f1);
-      border: none;
-      border-radius: 2rem;
-      padding: 8px 20px;
+    h1 { font-size: 1rem; font-weight: 700; }
+    .add-btn, .btn-outline, .btn-glow {
+      border-radius: 1.5rem;
+      padding: 4px 12px;
+      font-size: 0.7rem;
       font-weight: 600;
-      color: white;
-      font-size: 0.75rem;
       cursor: pointer;
-      transition: 0.2s;
-      box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+      transition: 0.1s;
+      border: none;
     }
-    .btn-glow:disabled { opacity: 0.6; cursor: not-allowed; }
-
-    /* KPI Cards */
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 20px;
-    }
+    .add-btn { background: var(--primary); color: white; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); }
+    .btn-glow { background: linear-gradient(135deg, var(--primary), #6366f1); color: white; }
+    .add-btn:active, .btn-outline:active, .btn-glow:active { transform: scale(0.97); }
+    .kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
     .kpi-card {
       background: var(--surface);
-      backdrop-filter: blur(2px);
-      border-radius: 2rem;
-      padding: 14px 8px;
+      border-radius: 1rem;
+      padding: 6px 4px;
       text-align: center;
       border: 1px solid var(--border);
-      box-shadow: var(--card-shadow);
-      transition: transform 0.2s, box-shadow 0.2s;
+      font-size: 0.7rem;
     }
-    .kpi-card:hover { transform: translateY(-3px); box-shadow: var(--card-hover); }
-    .kpi-card i { font-size: 1.6rem; margin-bottom: 6px; display: inline-block; }
-    .kpi-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 4px; }
-    .kpi-value { font-size: 1.4rem; font-weight: 800; line-height: 1.2; margin-top: 4px; }
-    .border-blue { border-bottom: 3px solid var(--primary); }
-    .border-green { border-bottom: 3px solid var(--success); }
-    .border-amber { border-bottom: 3px solid var(--warning); }
-    .border-purple { border-bottom: 3px solid var(--purple); }
-    .border-pink { border-bottom: 3px solid var(--pink); }
-    .border-slate { border-bottom: 3px solid #64748b; }
-
+    .kpi-card i { font-size: 1rem; margin-bottom: 2px; }
+    .kpi-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+    .kpi-value { font-size: 0.9rem; font-weight: 800; margin-top: 2px; }
+    .border-blue { border-bottom: 2px solid var(--primary); }
+    .border-green { border-bottom: 2px solid var(--success); }
+    .border-amber { border-bottom: 2px solid var(--warning); }
+    .border-purple { border-bottom: 2px solid var(--purple); }
+    .border-pink { border-bottom: 2px solid var(--pink); }
+    .border-slate { border-bottom: 2px solid #64748b; }
     .glass-card {
       background: var(--surface);
-      backdrop-filter: blur(2px);
-      border-radius: 2rem;
+      border-radius: 1rem;
       border: 1px solid var(--border);
-      padding: 1rem;
-      margin-bottom: 20px;
-      box-shadow: var(--card-shadow);
+      padding: 0.5rem;
+      margin-bottom: 10px;
     }
-
     .input-modern, .filter-input {
       background: var(--surface-soft);
       border: 1px solid var(--border);
-      border-radius: 2rem;
-      padding: 10px 16px;
-      font-size: 0.8rem;
-      color: var(--text-main);
-      width: 100%;
-      transition: 0.2s;
-    }
-    .input-modern:focus, .filter-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-glow);
-    }
-
-    /* Quick filters (modern chip style) */
-    .quick-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 16px;
-      align-items: center;
-    }
-    .quick-btn {
-      background: var(--surface-soft);
-      border: 1px solid var(--border);
-      border-radius: 3rem;
-      padding: 8px 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(2px);
-    }
-    .quick-btn i { font-size: 0.8rem; }
-    .quick-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 4px 12px rgba(59,130,246,0.4);
-    }
-    .quick-btn:hover:not(.active) { background: var(--surface); transform: translateY(-2px); }
-
-    /* Custom range picker - hidden by default, shown with animation */
-    .custom-range-container {
-      overflow: hidden;
-      transition: all 0.3s ease;
-      max-height: 0;
-      opacity: 0;
-      margin-top: 0;
-      visibility: hidden;
-    }
-    .custom-range-container.visible {
-      max-height: 120px;
-      opacity: 1;
-      visibility: visible;
-      margin-top: 12px;
-    }
-    .date-range-custom {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .date-range-custom .filter-group {
-      flex: 1;
-      min-width: 140px;
-    }
-
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table th { text-align: left; padding: 12px 10px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-    .data-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
-    .badge {
-      background: var(--surface-soft);
-      padding: 4px 12px;
-      border-radius: 2rem;
+      border-radius: 1.5rem;
+      padding: 4px 10px;
       font-size: 0.7rem;
-      font-weight: 600;
+      width: 100%;
     }
-    .action-edit, .action-delete { cursor: pointer; margin: 0 6px; opacity: 0.7; transition: 0.15s; display: inline-block; }
-    .action-edit:hover { opacity: 1; color: var(--primary); transform: scale(1.1); }
-    .action-delete:hover { opacity: 1; color: var(--danger); transform: scale(1.1); }
-
-    canvas { max-height: 180px; width: 100%; margin-top: 8px; }
-    .info-note { font-size: 0.7rem; margin-top: 8px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--surface-soft); padding: 6px 12px; border-radius: 2rem; }
-    .badge-airtime { background: rgba(16,185,129,0.2); color: var(--success); border-radius: 2rem; padding: 4px 10px; font-weight: 600; }
-
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-      align-items: center; justify-content: center; z-index: 1000;
-      animation: fadeSlideUp 0.2s ease;
-    }
-    .modal-content {
-      background: var(--surface);
-      border-radius: 2rem;
-      padding: 24px;
-      width: 280px;
-      text-align: center;
-      border: 1px solid var(--border);
-    }
-    .theme-card {
-      display: inline-block; background: var(--surface-soft); border: 1px solid var(--border);
-      border-radius: 2rem; padding: 8px 18px; margin: 0 6px; font-weight: 600; cursor: pointer;
-      transition: 0.1s;
-    }
+    .input-modern:focus { outline: none; border-color: var(--primary); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+    .data-table th, .data-table td { padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--border); }
+    .badge { background: var(--surface-soft); padding: 2px 8px; border-radius: 1rem; font-size: 0.6rem; font-weight: 600; }
+    .action-edit, .action-delete { cursor: pointer; margin: 0 3px; opacity: 0.7; display: inline-block; }
+    .action-edit:hover { color: var(--primary); }
+    .action-delete:hover { color: var(--danger); }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; }
+    .filter-group { flex: 1; min-width: 90px; }
+    .filter-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; color: var(--text-muted); }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: var(--surface); border-radius: 1.5rem; padding: 16px; width: 220px; text-align: center; }
+    .theme-card { background: var(--surface-soft); border: 1px solid var(--border); border-radius: 1.5rem; padding: 4px 12px; margin: 0 4px; cursor: pointer; font-size: 0.7rem; }
     .theme-card.active { background: var(--primary); color: white; }
-
     .form-hidden { display: none; }
-    .form-visible { display: block; animation: fadeSlideUp 0.3s ease; }
-
-    .toast-msg {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: var(--surface); border-left: 4px solid var(--primary); padding: 10px 24px;
-      border-radius: 3rem; font-weight: 500; z-index: 1100; font-size: 0.8rem;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      backdrop-filter: blur(8px);
-      animation: fadeSlideUp 0.2s ease;
-    }
-    @media (max-width: 680px) {
-      .kpi-value { font-size: 1.1rem; }
-      .quick-btn { padding: 6px 14px; font-size: 0.7rem; }
-    }
+    .form-visible { display: block; animation: fadeSlide 0.2s; }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .toast-msg { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--surface); border-left: 3px solid var(--primary); padding: 4px 16px; border-radius: 1.5rem; font-size: 0.7rem; z-index: 1100; }
+    canvas { max-height: 130px; width: 100%; margin-top: 4px; }
+    @media (max-width: 640px) { .kpi-value { font-size: 0.8rem; } .kpi-card i { font-size: 0.9rem; } }
   </style>
 </head>
 <body>
 <div class="container">
-  <!-- Header -->
-  <div class="flex-between" style="margin-bottom: 1.5rem;">
-    <div class="flex-between" style="gap: 14px;">
-      <div class="logo-badge"><i class="fas fa-chart-line" style="color:white;"></i><span style="color:white; font-weight:700;">SHATOVA</span></div>
-      <h1><i class="fas fa-database"></i> Smart Sales · 2% Airtime</h1>
+  <div class="flex-between" style="margin-bottom: 8px;">
+    <div class="flex-between" style="gap: 8px;">
+      <div class="logo-badge"><i class="fas fa-chart-line"></i><span>SHATOVA</span></div>
+      <h1>Smart Sales</h1>
     </div>
-    <div class="flex-between" style="gap: 12px;">
-      <button id="showFormBtn" class="add-btn"><i class="fas fa-plus-circle"></i> New Sale</button>
+    <div class="flex-between" style="gap: 6px;">
+      <button id="showFormBtn" class="add-btn"><i class="fas fa-plus-circle"></i> Add</button>
       <button id="settingsBtn" class="btn-outline"><i class="fas fa-cog"></i></button>
     </div>
   </div>
 
   <!-- Settings Modal -->
   <div id="settingsModal" class="modal">
-    <div class="modal-content"><h4 style="margin-bottom: 12px;"><i class="fas fa-palette"></i> Theme</h4><div><span class="theme-card" data-theme="light"><i class="fas fa-sun"></i> Light</span><span class="theme-card" data-theme="dark"><i class="fas fa-moon"></i> Dark</span></div><button id="closeModalBtn" class="btn-outline" style="margin-top: 18px;">Close</button></div>
+    <div class="modal-content">
+      <h4 style="margin-bottom: 8px;"><i class="fas fa-palette"></i> Theme</h4>
+      <div><span class="theme-card" data-theme="light">Light</span><span class="theme-card" data-theme="dark">Dark</span></div>
+      <button id="closeModalBtn" class="btn-outline" style="margin-top: 12px;">Close</button>
+    </div>
   </div>
 
-  <!-- Sale Form (Airtime only selling input) -->
+  <!-- Sale Form (slim) -->
   <div id="saleFormContainer" class="form-hidden glass-card">
-    <div class="flex-between" style="margin-bottom: 10px;"><span class="font-bold" id="formTitle" style="font-size: 0.9rem; font-weight: 700;"><i class="fas fa-calculator"></i> NEW SALE</span><i class="fas fa-tag" style="color:var(--primary);"></i></div>
-    <div class="flex-between" style="gap: 10px; flex-wrap: wrap;">
+    <div class="flex-between"><span id="formTitle" style="font-weight:600;">➕ NEW SALE</span><i class="fas fa-calculator"></i></div>
+    <div class="flex-between" style="gap: 6px; margin-top: 6px; flex-wrap: wrap;">
       <input type="date" id="txDate" class="input-modern" style="flex:1;">
       <select id="txCategory" class="input-modern" style="flex:1;"><option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option></select>
       <select id="txProvider" class="input-modern" style="flex:1;"><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>Other</option></select>
-      <input type="number" id="txCostPrice" placeholder="Cost (₦)" class="input-modern" style="flex:1;" step="any">
-      <input type="number" id="txSellingPrice" placeholder="Selling (₦)" class="input-modern" style="flex:1;" step="any">
-      <div class="flex-between" style="gap: 8px;"><button id="saveTxBtn" class="btn-glow"><i class="fas fa-save"></i> Save</button><button id="cancelEditBtn" class="btn-outline hidden">Cancel</button><button id="hideFormBtn" class="btn-outline"><i class="fas fa-times"></i></button></div>
-    </div>
-    <div id="airtimeHint" class="info-note"><i class="fas fa-magic"></i> <span>✨ Airtime: only enter Selling price → Cost = Selling × 0.98 (2% profit). Others: fill both.</span></div>
-  </div>
-
-  <!-- KPI Row 1-3 -->
-  <div class="kpi-row"><div class="kpi-card border-blue"><i class="fas fa-receipt"></i><div class="kpi-label">TRANSACTIONS</div><div class="kpi-value" id="totalTxDisplay">—</div></div>
-  <div class="kpi-card border-green"><i class="fas fa-wifi"></i><div class="kpi-label">DATA PROFIT</div><div class="kpi-value" id="dataProfitTotal">—</div></div>
-  <div class="kpi-card border-amber"><i class="fas fa-phone-alt"></i><div class="kpi-label">AIRTIME PROFIT</div><div class="kpi-value" id="airtimeProfitTotal">—</div></div></div>
-  <div class="kpi-row"><div class="kpi-card border-purple"><i class="fas fa-bolt"></i><div class="kpi-label">ELECTRICITY</div><div class="kpi-value" id="electricityProfitTotal">—</div></div>
-  <div class="kpi-card border-pink"><i class="fas fa-file-invoice"></i><div class="kpi-label">BILLS PROFIT</div><div class="kpi-value" id="billsProfitTotal">—</div></div>
-  <div class="kpi-card border-slate"><i class="fas fa-tower-cell"></i><div class="kpi-label">PROVIDERS</div><div class="kpi-value" id="activeProvidersCount">—</div></div></div>
-  <div class="kpi-row"><div class="kpi-card border-blue"><i class="fas fa-chart-line"></i><div class="kpi-label">PROFIT MARGIN</div><div class="kpi-value" id="profitMarginDisplay">—</div></div>
-  <div class="kpi-card border-green"><i class="fas fa-coins"></i><div class="kpi-label">TOTAL PROFIT</div><div class="kpi-value" id="totalProfitDisplay">—</div></div>
-  <div class="kpi-card border-amber"><i class="fas fa-wallet"></i><div class="kpi-label">TOTAL REVENUE</div><div class="kpi-value" id="totalRevenueDisplay">—</div></div></div>
-
-  <!-- Analytics Quick Filters -->
-  <div class="glass-card" style="padding: 1rem;">
-    <div class="quick-filters" id="quickFilterBar">
-      <button data-range="today" class="quick-btn active"><i class="fas fa-calendar-day"></i> Today</button>
-      <button data-range="week" class="quick-btn"><i class="fas fa-calendar-week"></i> This Week</button>
-      <button data-range="month" class="quick-btn"><i class="fas fa-calendar-alt"></i> This Month</button>
-      <button data-range="custom" class="quick-btn" id="customRangeBtn"><i class="fas fa-calendar-range"></i> Custom Range</button>
-    </div>
-    <!-- Hidden custom range picker (appears only when Custom Range is clicked) -->
-    <div id="customRangeContainer" class="custom-range-container">
-      <div class="date-range-custom">
-        <div class="filter-group"><label class="filter-label"><i class="far fa-calendar-alt"></i> From</label><input type="date" id="filterStartDate" class="filter-input"></div>
-        <div class="filter-group"><label class="filter-label"><i class="far fa-calendar-check"></i> To</label><input type="date" id="filterEndDate" class="filter-input"></div>
+      <input type="number" id="txCostPrice" placeholder="Cost ₦" class="input-modern" style="flex:1;">
+      <input type="number" id="txSellingPrice" placeholder="Selling ₦" class="input-modern" style="flex:1;">
+      <div class="flex-between" style="gap: 4px;">
+        <button id="saveTxBtn" class="btn-glow"><i class="fas fa-save"></i> Save</button>
+        <button id="cancelEditBtn" class="btn-outline hidden">Cancel</button>
+        <button id="hideFormBtn" class="btn-outline"><i class="fas fa-times"></i></button>
       </div>
     </div>
+    <div style="font-size: 9px; margin-top: 4px;"><i class="fas fa-magic"></i> Profit = Sell − Buy</div>
   </div>
 
-  <!-- Charts Row -->
-  <div class="flex-between" style="gap: 18px; flex-wrap: wrap; margin-bottom: 20px;">
-    <div class="glass-card" style="flex: 1;"><div><i class="fas fa-chart-pie" style="color:var(--primary);"></i> <strong>Profit by Category</strong></div><canvas id="categoryChart" height="140"></canvas></div>
-    <div class="glass-card" style="flex: 1;"><div><i class="fas fa-chart-simple" style="color:var(--warning);"></i> <strong>Profit by Provider</strong></div><canvas id="providerChart" height="140"></canvas></div>
+  <!-- KPI Rows (3 rows, 3 cards each) -->
+  <div class="kpi-row">
+    <div class="kpi-card border-blue"><i class="fas fa-receipt"></i><div class="kpi-label">TRANSACTIONS</div><div class="kpi-value" id="totalTxDisplay">—</div></div>
+    <div class="kpi-card border-green"><i class="fas fa-wifi"></i><div class="kpi-label">DATA PROFIT</div><div class="kpi-value" id="dataProfitTotal">—</div></div>
+    <div class="kpi-card border-amber"><i class="fas fa-phone-alt"></i><div class="kpi-label">AIRTIME PROFIT</div><div class="kpi-value" id="airtimeProfitTotal">—</div></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card border-purple"><i class="fas fa-bolt"></i><div class="kpi-label">ELECTRICITY</div><div class="kpi-value" id="electricityProfitTotal">—</div></div>
+    <div class="kpi-card border-pink"><i class="fas fa-file-invoice"></i><div class="kpi-label">BILLS PROFIT</div><div class="kpi-value" id="billsProfitTotal">—</div></div>
+    <div class="kpi-card border-slate"><i class="fas fa-tower-cell"></i><div class="kpi-label">PROVIDERS</div><div class="kpi-value" id="activeProvidersCount">—</div></div>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi-card border-blue"><i class="fas fa-chart-line"></i><div class="kpi-label">PROFIT MARGIN</div><div class="kpi-value" id="profitMarginDisplay">—</div></div>
+    <div class="kpi-card border-green"><i class="fas fa-coins"></i><div class="kpi-label">TOTAL PROFIT</div><div class="kpi-value" id="totalProfitDisplay">—</div></div>
+    <div class="kpi-card border-amber"><i class="fas fa-wallet"></i><div class="kpi-label">TOTAL REVENUE</div><div class="kpi-value" id="totalRevenueDisplay">—</div></div>
   </div>
 
-  <!-- Filters by Category & Provider + CSV -->
+  <!-- CHARTS -->
+  <div class="glass-card"><div class="flex-between"><i class="fas fa-chart-pie"></i><span style="font-weight:600;">Profit by Category</span></div><canvas id="categoryChart" height="110"></canvas></div>
+  <div class="glass-card"><div class="flex-between"><i class="fas fa-chart-simple"></i><span style="font-weight:600;">Profit by Provider</span></div><canvas id="providerChart" height="110"></canvas></div>
+
+  <!-- Filters -->
   <div class="glass-card">
-    <div class="filter-bar" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
-      <div class="filter-group"><label class="filter-label"><i class="fas fa-tags"></i> Category</label><select id="filterCategory" class="filter-input"><option value="all">All</option><option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option></select></div>
-      <div class="filter-group"><label class="filter-label"><i class="fas fa-building"></i> Provider</label><select id="filterProvider" class="filter-input"><option value="all">All</option><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>Other</option></select></div>
-      <div class="filter-group"><button id="resetFilterBtn" class="btn-outline"><i class="fas fa-undo-alt"></i> Reset All</button></div>
-      <div class="filter-group"><button id="exportCSVBtn" class="btn-glow" style="background: linear-gradient(135deg, #2c3e66, #1e293b);"><i class="fas fa-download"></i> Export CSV</button></div>
+    <div class="filter-bar">
+      <div class="filter-group"><label class="filter-label">From</label><input type="date" id="filterStartDate" class="filter-input"></div>
+      <div class="filter-group"><label class="filter-label">To</label><input type="date" id="filterEndDate" class="filter-input"></div>
+      <div class="filter-group"><label class="filter-label">Category</label><select id="filterCategory" class="filter-input"><option value="all">All</option><option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option></select></div>
+      <div class="filter-group"><label class="filter-label">Provider</label><select id="filterProvider" class="filter-input"><option value="all">All</option><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>Other</option></select></div>
+      <div class="filter-group" style="flex:0;"><button id="resetFilterBtn" class="btn-outline"><i class="fas fa-undo-alt"></i> Reset</button></div>
+      <div class="filter-group" style="flex:0;"><button id="exportCSVBtn" class="btn-outline"><i class="fas fa-download"></i> CSV</button></div>
     </div>
   </div>
 
-  <!-- Transaction Table -->
+  <!-- Transactions table -->
   <div class="glass-card" style="padding: 0; overflow-x: auto;">
-    <div style="padding: 1rem; border-bottom: 1px solid var(--border);"><i class="fas fa-list-ul" style="color:var(--primary);"></i> <strong>Sales Ledger</strong> <span style="font-size: 0.7rem; margin-left: 8px;">(click edit/delete)</span></div>
-    <table class="data-table"><thead><tr><th>Date</th><th>Category</th><th>Provider</th><th>Cost (₦)</th><th>Selling (₦)</th><th>Profit (₦)</th><th style="text-align:center">Actions</th></tr></thead>
-    <tbody id="transactionTableBody"><tr><td colspan="7" style="text-align:center; padding: 3rem;">Loading PostgreSQL data...✨</td></tr></tbody>
+    <div style="padding: 6px 8px; border-bottom: 1px solid var(--border);"><i class="fas fa-list-ul"></i> <span style="font-weight:600;">Sales Ledger</span></div>
+    <table class="data-table">
+      <thead><tr><th>Date</th><th>Cat</th><th>Provider</th><th>Cost</th><th>Selling</th><th>Profit</th><th style="text-align:center">Actions</th></tr></thead>
+      <tbody id="transactionTableBody"><tr><td colspan="7" style="text-align:center; padding: 20px;">Loading from PostgreSQL... ✨</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -392,18 +209,18 @@
   let editModeId = null;
   let categoryChart, providerChart;
   let isProcessing = false;
-  let currentRange = 'today';
 
-  // DOM elements
-  const categorySelect = document.getElementById('txCategory');
-  const costInput = document.getElementById('txCostPrice');
-  const sellingInput = document.getElementById('txSellingPrice');
-  const filterStart = document.getElementById('filterStartDate');
-  const filterEnd = document.getElementById('filterEndDate');
-  const filterCategory = document.getElementById('filterCategory');
-  const filterProvider = document.getElementById('filterProvider');
-  const customRangeContainer = document.getElementById('customRangeContainer');
-  const customRangeBtn = document.getElementById('customRangeBtn');
+  // Helper: format ISO date to YYYY-MM-DD (readable)
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    // if already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+    try {
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return dateString;
+      return d.toISOString().slice(0, 10);
+    } catch(e) { return dateString; }
+  }
 
   function showMessage(msg, isErr = false) {
     let toast = document.createElement('div');
@@ -411,179 +228,89 @@
     toast.style.borderLeftColor = isErr ? '#ef4444' : '#3b82f6';
     toast.innerText = msg;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2200);
+    setTimeout(() => toast.remove(), 2000);
   }
 
-  function getProfit(item) { return (item.sellingPrice || 0) - (item.costPrice || 0); }
-
-  // Airtime 2% rule: only selling input matters
-  function applyAirtimeLogic() {
-    const isAirtime = categorySelect.value === 'Airtime';
-    if (isAirtime) {
-      costInput.disabled = true;
-      costInput.placeholder = "Auto (2% margin)";
-      sellingInput.disabled = false;
-      sellingInput.placeholder = "💰 Selling price only";
-      document.getElementById('airtimeHint').innerHTML = '<i class="fas fa-percent"></i> <span class="badge-airtime">✨ AIRTIME MODE: Enter Selling → Cost = Selling × 0.98 (Profit = 2% of Selling)</span>';
-      const sellVal = parseFloat(sellingInput.value);
-      if (!isNaN(sellVal) && sellVal > 0) costInput.value = (sellVal * 0.98).toFixed(2);
-      else costInput.value = '';
-    } else {
-      costInput.disabled = false;
-      costInput.placeholder = "Cost (₦)";
-      sellingInput.disabled = false;
-      sellingInput.placeholder = "Selling (₦)";
-      document.getElementById('airtimeHint').innerHTML = '<i class="fas fa-chart-line"></i> <span>📋 For Data/Electricity/Bills: enter both Cost & Selling. Profit = Selling − Cost.</span>';
-    }
-  }
-  function updateCostFromSelling() {
-    if (categorySelect.value === 'Airtime') {
-      const sellVal = parseFloat(sellingInput.value);
-      if (!isNaN(sellVal) && sellVal > 0) costInput.value = (sellVal * 0.98).toFixed(2);
-      else costInput.value = '';
-    }
-  }
-  function getValidatedCostAndSelling() {
-    const category = categorySelect.value;
-    if (category === 'Airtime') {
-      let selling = parseFloat(sellingInput.value);
-      if (isNaN(selling) || selling <= 0) throw new Error("Valid selling price required for Airtime");
-      let cost = selling * 0.98;
-      return { cost: Math.round(cost * 100)/100, selling: Math.round(selling * 100)/100 };
-    } else {
-      let cost = parseFloat(costInput.value);
-      let selling = parseFloat(sellingInput.value);
-      if (isNaN(cost) || cost <= 0) throw new Error("Valid cost required");
-      if (isNaN(selling) || selling <= 0) throw new Error("Valid selling required");
-      if (selling < cost) throw new Error("Selling must be >= cost");
-      return { cost, selling };
-    }
+  function getProfit(item) {
+    let profit = (item.sellingPrice || 0) - (item.costPrice || 0);
+    if (item.profit !== undefined && typeof item.profit === 'number' && !isNaN(item.profit)) profit = item.profit;
+    return isNaN(profit) ? 0 : profit;
   }
 
-  // Date range helpers
-  function formatDate(d) { return d.toISOString().slice(0,10); }
-  function getTodayStr() { return formatDate(new Date()); }
-  function getWeekRange() {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = day === 0 ? 6 : day - 1;
-    const monday = new Date(today); monday.setDate(today.getDate() - diff);
-    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
-    return { start: formatDate(monday), end: formatDate(sunday) };
-  }
-  function getMonthRange() {
-    const today = new Date();
-    const start = new Date(today.getFullYear(), today.getMonth(), 1);
-    const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    return { start: formatDate(start), end: formatDate(end) };
-  }
-
-  function setDateRange(range) {
-    currentRange = range;
-    if (range === 'today') {
-      const today = getTodayStr();
-      filterStart.value = today;
-      filterEnd.value = today;
-      hideCustomRangePicker();
-    } else if (range === 'week') {
-      const { start, end } = getWeekRange();
-      filterStart.value = start;
-      filterEnd.value = end;
-      hideCustomRangePicker();
-    } else if (range === 'month') {
-      const { start, end } = getMonthRange();
-      filterStart.value = start;
-      filterEnd.value = end;
-      hideCustomRangePicker();
-    } else if (range === 'custom') {
-      showCustomRangePicker();
-      // If custom was already selected, keep existing dates (or default to today if empty)
-      if (!filterStart.value) filterStart.value = getTodayStr();
-      if (!filterEnd.value) filterEnd.value = getTodayStr();
-    }
-    renderAll();
-    updateQuickButtonsActive(range);
-  }
-
-  function showCustomRangePicker() {
-    customRangeContainer.classList.add('visible');
-  }
-  function hideCustomRangePicker() {
-    customRangeContainer.classList.remove('visible');
-  }
-
-  function updateQuickButtonsActive(active) {
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      const range = btn.getAttribute('data-range');
-      if (range === active) btn.classList.add('active');
-      else btn.classList.remove('active');
-    });
-  }
-
-  function resetAllFilters() {
-    filterCategory.value = 'all';
-    filterProvider.value = 'all';
-    setDateRange('today');
-  }
-
-  function getFiltered() {
-    let filtered = [...transactions];
-    const start = filterStart.value;
-    const end = filterEnd.value;
-    if (start) filtered = filtered.filter(t => t.date >= start);
-    if (end) filtered = filtered.filter(t => t.date <= end);
-    const cat = filterCategory.value;
-    if (cat !== 'all') filtered = filtered.filter(t => t.category === cat);
-    const prov = filterProvider.value;
-    if (prov !== 'all') filtered = filtered.filter(t => t.provider === prov);
-    return filtered;
-  }
-
-  // API
   async function fetchAll() {
     try {
       const res = await fetch(API_BASE);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       return data.map(t => ({
-        id: t.id, date: t.date, category: t.category, provider: t.provider,
+        id: t.id,
+        date: t.date,
+        category: t.category,
+        provider: t.provider,
         costPrice: Number(t.cost_price) || 0,
         sellingPrice: Number(t.selling_price) || 0,
+        profit: (t.profit !== undefined && t.profit !== null) ? Number(t.profit) : (Number(t.selling_price) - Number(t.cost_price))
       }));
-    } catch(e) { showMessage('Load error: ' + e.message, true); return []; }
+    } catch(e) { showMessage('Load failed: ' + e.message, true); return []; }
   }
+
   async function insertTx(tx) {
-    const res = await fetch(API_BASE, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ date: tx.date, category: tx.category, provider: tx.provider, cost_price: tx.costPrice, selling_price: tx.sellingPrice }) });
-    if (!res.ok) throw new Error((await res.json()).message);
+    const res = await fetch(API_BASE, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ date: tx.date, category: tx.category, provider: tx.provider, cost_price: tx.costPrice, selling_price: tx.sellingPrice })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message); }
+    return await res.json();
   }
+
   async function updateTx(id, tx) {
-    const res = await fetch(`${API_BASE}/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ date: tx.date, category: tx.category, provider: tx.provider, cost_price: tx.costPrice, selling_price: tx.sellingPrice }) });
-    if (!res.ok) throw new Error((await res.json()).message);
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ date: tx.date, category: tx.category, provider: tx.provider, cost_price: tx.costPrice, selling_price: tx.sellingPrice })
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message); }
   }
+
   async function deleteTxAPI(id) {
     const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error((await res.json()).message);
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message); }
   }
+
   async function loadData() {
     transactions = await fetchAll();
     renderAll();
   }
 
+  function getFiltered() {
+    let f = [...transactions];
+    const start = document.getElementById('filterStartDate').value;
+    const end = document.getElementById('filterEndDate').value;
+    const cat = document.getElementById('filterCategory').value;
+    const prov = document.getElementById('filterProvider').value;
+    if (start) f = f.filter(t => t.date >= start);
+    if (end) f = f.filter(t => t.date <= end);
+    if (cat !== 'all') f = f.filter(t => t.category === cat);
+    if (prov !== 'all') f = f.filter(t => t.provider === prov);
+    return f;
+  }
+
   function computeTotals(filtered) {
-    let revenue = 0, totalProfit = 0, dataP = 0, airP = 0, elecP = 0, billsP = 0, providers = new Set();
+    let revenue = 0, totalProfit = 0, dataP = 0, airP = 0, elecP = 0, billsP = 0;
+    let providers = new Set();
     filtered.forEach(t => {
-      const profit = getProfit(t);
+      const profitVal = getProfit(t);
       revenue += t.sellingPrice;
-      totalProfit += profit;
-      if (t.category === 'Data') dataP += profit;
-      else if (t.category === 'Airtime') airP += profit;
-      else if (t.category === 'Electricity') elecP += profit;
-      else if (t.category === 'Bills') billsP += profit;
+      totalProfit += profitVal;
+      if (t.category === 'Data') dataP += profitVal;
+      else if (t.category === 'Airtime') airP += profitVal;
+      else if (t.category === 'Electricity') elecP += profitVal;
+      else if (t.category === 'Bills') billsP += profitVal;
       providers.add(t.provider);
     });
     const margin = revenue > 0 ? (totalProfit / revenue * 100) : 0;
     return { revenue, totalProfit, dataP, airP, elecP, billsP, activeProv: providers.size, margin };
   }
+
   function getCatMap(filtered) {
     let map = { Data:0, Airtime:0, Electricity:0, Bills:0 };
     filtered.forEach(t => { if (map[t.category] !== undefined) map[t.category] += getProfit(t); });
@@ -597,13 +324,26 @@
 
   function renderTable(data) {
     const tbody = document.getElementById('transactionTableBody');
-    if (!data.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2.5rem;">📭 No transactions in selected period</td></tr>`; return; }
-    tbody.innerHTML = data.map(tx => `<tr>
-      <td>${tx.date}</td><td><span class="badge">${tx.category}</span></td><td>${tx.provider}</td>
-      <td>₦${tx.costPrice.toLocaleString()}</td><td>₦${tx.sellingPrice.toLocaleString()}</td>
-      <td style="color:var(--primary); font-weight:700;">₦${getProfit(tx).toLocaleString()}</td>
-      <td style="text-align:center"><span onclick="editTx(${tx.id})" class="action-edit"><i class="fas fa-pen"></i></span><span onclick="deleteTx(event, ${tx.id})" class="action-delete"><i class="fas fa-trash-alt"></i></span></td>
-     </tr>`).join('');
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px;">✨ No sales yet. Add your first transaction ✨</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = data.map(tx => {
+      const profitVal = getProfit(tx);
+      const displayDate = formatDate(tx.date);
+      return `<tr>
+        <td>${displayDate}</td>
+        <td><span class="badge">${tx.category}</span></td>
+        <td>${tx.provider}</td>
+        <td>₦${tx.costPrice.toLocaleString()}</td>
+        <td>₦${tx.sellingPrice.toLocaleString()}</td>
+        <td style="color:var(--primary); font-weight:600;">₦${profitVal.toLocaleString()}</td>
+        <td style="text-align:center">
+          <span onclick="editTx(${tx.id})" class="action-edit"><i class="fas fa-pen"></i></span>
+          <span onclick="deleteTx(event, ${tx.id})" class="action-delete"><i class="fas fa-trash-alt"></i></span>
+        </td>
+      </tr>`;
+    }).join('');
   }
 
   function updateCharts(catMap, provMap) {
@@ -611,158 +351,183 @@
     const ctxProv = document.getElementById('providerChart').getContext('2d');
     if (categoryChart) categoryChart.destroy();
     if (providerChart) providerChart.destroy();
-    const txtColor = getComputedStyle(document.body).getPropertyValue('--text-secondary').trim() || '#2c4f6e';
-    const gridColor = getComputedStyle(document.body).getPropertyValue('--border').trim() || '#e2edf5';
+    const txtColor = getComputedStyle(document.body).getPropertyValue('--text-secondary')?.trim() || '#2c5270';
+    const gridColor = getComputedStyle(document.body).getPropertyValue('--border')?.trim() || '#e2edfb';
     categoryChart = new Chart(ctxCat, {
       type: 'doughnut',
       data: { labels: Object.keys(catMap), datasets: [{ data: Object.values(catMap), backgroundColor: ['#3b82f6','#10b981','#f59e0b','#8b5cf6'], borderWidth: 0 }] },
-      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: txtColor } } } }
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, color: txtColor } } } }
     });
     providerChart = new Chart(ctxProv, {
       type: 'bar',
-      data: { labels: Object.keys(provMap), datasets: [{ label: 'Profit (₦)', data: Object.values(provMap), backgroundColor: '#f97316', borderRadius: 8 }] },
-      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { font: { size: 10 }, color: txtColor } } }, scales: { y: { ticks: { color: txtColor }, grid: { color: gridColor } }, x: { ticks: { color: txtColor }, grid: { display: false } } } }
+      data: { labels: Object.keys(provMap), datasets: [{ label: 'Profit (₦)', data: Object.values(provMap), backgroundColor: '#f97316', borderRadius: 4 }] },
+      options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { labels: { font: { size: 9 }, color: txtColor } } }, scales: { y: { ticks: { color: txtColor }, grid: { color: gridColor } }, x: { ticks: { color: txtColor }, grid: { display: false } } } }
     });
   }
 
   function renderAll() {
     const filtered = getFiltered();
     const totals = computeTotals(filtered);
-    const empty = filtered.length === 0;
-    document.getElementById('totalTxDisplay').innerHTML = empty ? '—' : filtered.length;
-    const setKPI = (id, val, prefix='₦', suffix='') => { let el = document.getElementById(id); if(el) el.innerHTML = (empty && (val===0||!val)) ? '—' : prefix + (Math.round(val)).toLocaleString() + suffix; };
+    const isEmpty = filtered.length === 0;
+    const setKPI = (id, value, prefix = '₦', suffix = '') => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isEmpty && (value === 0 || value === undefined)) { el.innerHTML = '—'; return; }
+      let num = typeof value === 'number' && !isNaN(value) ? value : 0;
+      el.innerHTML = prefix + num.toLocaleString() + suffix;
+    };
+    document.getElementById('totalTxDisplay').innerHTML = isEmpty ? '—' : filtered.length;
     setKPI('totalRevenueDisplay', totals.revenue);
     setKPI('totalProfitDisplay', totals.totalProfit);
-    setKPI('dataProfitTotal', totals.dataP);
-    setKPI('airtimeProfitTotal', totals.airP);
-    setKPI('electricityProfitTotal', totals.elecP);
-    setKPI('billsProfitTotal', totals.billsP);
+    setKPI('dataProfitTotal', Math.round(totals.dataP));
+    setKPI('airtimeProfitTotal', Math.round(totals.airP));
+    setKPI('electricityProfitTotal', Math.round(totals.elecP));
+    setKPI('billsProfitTotal', Math.round(totals.billsP));
     setKPI('activeProvidersCount', totals.activeProv, '', '');
     setKPI('profitMarginDisplay', totals.margin, '', '%');
     updateCharts(getCatMap(filtered), getProvMap(filtered));
     renderTable(filtered);
   }
 
-  // CRUD
   async function saveTransaction() {
-    if (isProcessing) return showMessage("Please wait...", true);
+    if (isProcessing) { showMessage("Please wait...", true); return; }
     const date = document.getElementById('txDate').value;
-    const category = categorySelect.value;
+    const category = document.getElementById('txCategory').value;
     const provider = document.getElementById('txProvider').value;
+    const cost = parseFloat(document.getElementById('txCostPrice').value);
+    const sell = parseFloat(document.getElementById('txSellingPrice').value);
     if (!date) { showMessage("Select date", true); return; }
-    let cost, selling;
-    try { const vals = getValidatedCostAndSelling(); cost = vals.cost; selling = vals.selling; } catch(e) { showMessage(e.message, true); return; }
+    if (isNaN(cost) || cost <= 0) { showMessage("Valid cost", true); return; }
+    if (isNaN(sell) || sell <= 0) { showMessage("Valid selling price", true); return; }
+    if (sell < cost) { showMessage("Selling cannot be less than cost", true); return; }
+
+    const saveBtn = document.getElementById('saveTxBtn');
     isProcessing = true;
-    const btn = document.getElementById('saveTxBtn');
-    const original = btn.innerHTML;
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Saving';
+    saveBtn.disabled = true;
+    const originalHtml = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
     try {
-      if (editModeId) {
-        await updateTx(editModeId, { date, category, provider, costPrice: cost, sellingPrice: selling });
-        showMessage("Updated successfully");
+      if (editModeId !== null) {
+        await updateTx(editModeId, { date, category, provider, costPrice: cost, sellingPrice: sell });
+        showMessage("Updated");
         editModeId = null;
-        document.getElementById('formTitle').innerHTML = '<i class="fas fa-calculator"></i> NEW SALE';
+        document.getElementById('formTitle').innerHTML = "➕ NEW SALE";
         document.getElementById('cancelEditBtn').classList.add('hidden');
       } else {
-        await insertTx({ date, category, provider, costPrice: cost, sellingPrice: selling });
-        showMessage("Sale added (Airtime 2% auto)");
+        await insertTx({ date, category, provider, costPrice: cost, sellingPrice: sell });
+        showMessage("Sale added");
       }
       await loadData();
-      clearForm(); hideForm();
-    } catch(e) { showMessage("Error: " + e.message, true); } finally { isProcessing = false; btn.disabled = false; btn.innerHTML = original; }
+      clearForm();
+      hideForm();
+    } catch (e) { showMessage("Error: " + e.message, true); }
+    finally {
+      isProcessing = false;
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = originalHtml;
+    }
   }
 
   window.editTx = (id) => {
+    if (isProcessing) { showMessage("Please wait", true); return; }
     const tx = transactions.find(t => t.id === id);
     if (!tx) return;
     editModeId = id;
     document.getElementById('txDate').value = tx.date;
+    document.getElementById('txCategory').value = tx.category;
     document.getElementById('txProvider').value = tx.provider;
-    if (tx.category === 'Airtime') {
-      categorySelect.value = 'Airtime';
-      sellingInput.value = tx.sellingPrice;
-      costInput.value = (tx.sellingPrice * 0.98).toFixed(2);
-      costInput.disabled = true;
-    } else {
-      categorySelect.value = tx.category;
-      costInput.value = tx.costPrice;
-      sellingInput.value = tx.sellingPrice;
-      costInput.disabled = false;
-    }
-    applyAirtimeLogic();
-    document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> EDIT SALE';
+    document.getElementById('txCostPrice').value = tx.costPrice;
+    document.getElementById('txSellingPrice').value = tx.sellingPrice;
+    document.getElementById('formTitle').innerHTML = "✏️ EDIT SALE";
     document.getElementById('cancelEditBtn').classList.remove('hidden');
     showForm();
   };
+
   window.deleteTx = async (event, id) => {
-    if (!confirm("Delete this sale permanently?")) return;
-    if (isProcessing) return showMessage("Busy", true);
+    event.stopPropagation();
+    if (isProcessing) { showMessage("Action in progress", true); return; }
+    if (!confirm("Delete this sale?")) return;
     isProcessing = true;
-    try { await deleteTxAPI(id); showMessage("Deleted"); await loadData(); if (editModeId === id) cancelEdit(); } catch(e) { showMessage("Delete failed", true); } finally { isProcessing = false; }
+    try {
+      await deleteTxAPI(id);
+      showMessage("Deleted");
+      await loadData();
+      if (editModeId === id) cancelEdit();
+    } catch (e) { showMessage("Delete failed: " + e.message, true); }
+    finally { isProcessing = false; }
   };
-  function cancelEdit() { editModeId = null; document.getElementById('formTitle').innerHTML = '<i class="fas fa-calculator"></i> NEW SALE'; document.getElementById('cancelEditBtn').classList.add('hidden'); clearForm(); }
-  function clearForm() {
-    document.getElementById('txDate').value = getTodayStr();
-    categorySelect.value = 'Data';
-    document.getElementById('txProvider').value = 'MTN';
-    costInput.value = ''; sellingInput.value = '';
-    applyAirtimeLogic();
+
+  function cancelEdit() {
+    editModeId = null;
+    document.getElementById('formTitle').innerHTML = "➕ NEW SALE";
+    document.getElementById('cancelEditBtn').classList.add('hidden');
+    clearForm();
   }
-  function showForm() { document.getElementById('saleFormContainer').classList.remove('form-hidden'); document.getElementById('saleFormContainer').classList.add('form-visible'); applyAirtimeLogic(); }
+  function clearForm() {
+    document.getElementById('txDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('txCategory').value = 'Data';
+    document.getElementById('txProvider').value = 'MTN';
+    document.getElementById('txCostPrice').value = '';
+    document.getElementById('txSellingPrice').value = '';
+  }
+  function showForm() { document.getElementById('saleFormContainer').classList.remove('form-hidden'); document.getElementById('saleFormContainer').classList.add('form-visible'); }
   function hideForm() { document.getElementById('saleFormContainer').classList.remove('form-visible'); document.getElementById('saleFormContainer').classList.add('form-hidden'); cancelEdit(); }
+  function resetFilters() {
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    document.getElementById('filterCategory').value = 'all';
+    document.getElementById('filterProvider').value = 'all';
+    renderAll();
+  }
   function exportCSV() {
     const filtered = getFiltered();
-    if (!filtered.length) { showMessage("No data to export", true); return; }
+    if (!filtered.length) { showMessage("No data", true); return; }
     let csv = [["Date","Category","Provider","CostPrice","SellingPrice","Profit"]];
     filtered.forEach(t => csv.push([t.date, t.category, t.provider, t.costPrice, t.sellingPrice, getProfit(t)]));
     const blob = new Blob([csv.map(r => r.join(",")).join("\n")], { type: "text/csv" });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `shatova_${getTodayStr()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `shatova_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   // Theme & Modal
   const modal = document.getElementById('settingsModal');
-  document.getElementById('settingsBtn').onclick = () => modal.style.display = 'flex';
-  document.getElementById('closeModalBtn').onclick = () => modal.style.display = 'none';
+  const settingsBtn = document.getElementById('settingsBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  settingsBtn.onclick = () => modal.style.display = 'flex';
+  closeModalBtn.onclick = () => modal.style.display = 'none';
   modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
   function setTheme(theme) {
-    if (theme === 'dark') document.body.classList.add('dark'); else document.body.classList.remove('dark');
+    if (theme === 'dark') document.body.classList.add('dark');
+    else document.body.classList.remove('dark');
     localStorage.setItem('shatova_theme', theme);
-    document.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.getAttribute('data-theme') === theme));
-    renderAll(); modal.style.display = 'none';
+    document.querySelectorAll('.theme-card').forEach(card => {
+      if (card.getAttribute('data-theme') === theme) card.classList.add('active');
+      else card.classList.remove('active');
+    });
+    renderAll();
+    modal.style.display = 'none';
   }
   document.querySelectorAll('.theme-card').forEach(c => c.addEventListener('click', () => setTheme(c.getAttribute('data-theme'))));
-  if (localStorage.getItem('shatova_theme') === 'dark') setTheme('dark'); else setTheme('light');
+  const savedTheme = localStorage.getItem('shatova_theme');
+  if (savedTheme === 'dark') setTheme('dark'); else setTheme('light');
 
   // Event listeners
   document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    document.getElementById('txDate').value = getTodayStr();
+    document.getElementById('txDate').value = new Date().toISOString().slice(0,10);
     document.getElementById('saveTxBtn').addEventListener('click', saveTransaction);
     document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
-    document.getElementById('resetFilterBtn').addEventListener('click', resetAllFilters);
+    document.getElementById('resetFilterBtn').addEventListener('click', resetFilters);
     document.getElementById('exportCSVBtn').addEventListener('click', exportCSV);
-    filterStart.addEventListener('change', () => { setDateRange('custom'); renderAll(); });
-    filterEnd.addEventListener('change', () => { setDateRange('custom'); renderAll(); });
-    filterCategory.addEventListener('change', () => { setDateRange(currentRange === 'custom' ? 'custom' : currentRange); renderAll(); });
-    filterProvider.addEventListener('change', () => { setDateRange(currentRange === 'custom' ? 'custom' : currentRange); renderAll(); });
+    document.getElementById('filterStartDate').addEventListener('change', () => renderAll());
+    document.getElementById('filterEndDate').addEventListener('change', () => renderAll());
+    document.getElementById('filterCategory').addEventListener('change', () => renderAll());
+    document.getElementById('filterProvider').addEventListener('change', () => renderAll());
     document.getElementById('showFormBtn').addEventListener('click', showForm);
     document.getElementById('hideFormBtn').addEventListener('click', hideForm);
-    categorySelect.addEventListener('change', applyAirtimeLogic);
-    sellingInput.addEventListener('input', updateCostFromSelling);
-    
-    // Quick filter buttons
-    document.querySelectorAll('.quick-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const range = btn.getAttribute('data-range');
-        if (range === 'custom') {
-          setDateRange('custom');
-        } else {
-          setDateRange(range);
-        }
-      });
-    });
-    // Default: today
-    setDateRange('today');
   });
 </script>
 </body>
