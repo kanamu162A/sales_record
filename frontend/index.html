@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Shatova Sales Record</title>
+  <title>Shatova · Slim Sales + Airtime 2%</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -99,6 +99,7 @@
       width: 100%;
     }
     .input-modern:focus { outline: none; border-color: var(--primary); }
+    .input-modern:disabled { opacity: 0.6; cursor: not-allowed; background: var(--surface); }
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
     .data-table th, .data-table td { padding: 6px 4px; text-align: left; border-bottom: 1px solid var(--border); }
     .badge { background: var(--surface-soft); padding: 2px 8px; border-radius: 1rem; font-size: 0.6rem; font-weight: 600; }
@@ -117,6 +118,8 @@
     @keyframes fadeSlide { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
     .toast-msg { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--surface); border-left: 3px solid var(--primary); padding: 4px 16px; border-radius: 1.5rem; font-size: 0.7rem; z-index: 1100; }
     canvas { max-height: 130px; width: 100%; margin-top: 4px; }
+    .info-note { font-size: 0.6rem; margin-top: 4px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+    .badge-airtime { background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 1rem; color: var(--success); }
     @media (max-width: 640px) { .kpi-value { font-size: 0.8rem; } .kpi-card i { font-size: 0.9rem; } }
   </style>
 </head>
@@ -125,7 +128,7 @@
   <div class="flex-between" style="margin-bottom: 8px;">
     <div class="flex-between" style="gap: 8px;">
       <div class="logo-badge"><i class="fas fa-chart-line"></i><span>SHATOVA</span></div>
-      <h1>Smart Sales</h1>
+      <h1>Smart Sales · Airtime 2%</h1>
     </div>
     <div class="flex-between" style="gap: 6px;">
       <button id="showFormBtn" class="add-btn"><i class="fas fa-plus-circle"></i> Add</button>
@@ -142,25 +145,27 @@
     </div>
   </div>
 
-  <!-- Sale Form (slim) -->
+  <!-- Sale Form with Airtime logic -->
   <div id="saleFormContainer" class="form-hidden glass-card">
     <div class="flex-between"><span id="formTitle" style="font-weight:600;">➕ NEW SALE</span><i class="fas fa-calculator"></i></div>
     <div class="flex-between" style="gap: 6px; margin-top: 6px; flex-wrap: wrap;">
       <input type="date" id="txDate" class="input-modern" style="flex:1;">
-      <select id="txCategory" class="input-modern" style="flex:1;"><option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option></select>
+      <select id="txCategory" class="input-modern" style="flex:1;">
+        <option>Data</option><option>Airtime</option><option>Electricity</option><option>Bills</option>
+      </select>
       <select id="txProvider" class="input-modern" style="flex:1;"><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option><option>Other</option></select>
-      <input type="number" id="txCostPrice" placeholder="Cost ₦" class="input-modern" style="flex:1;">
-      <input type="number" id="txSellingPrice" placeholder="Selling ₦" class="input-modern" style="flex:1;">
+      <input type="number" id="txCostPrice" placeholder="Cost (₦)" class="input-modern" style="flex:1;" step="any">
+      <input type="number" id="txSellingPrice" placeholder="Selling (₦)" class="input-modern" style="flex:1;" step="any">
       <div class="flex-between" style="gap: 4px;">
         <button id="saveTxBtn" class="btn-glow"><i class="fas fa-save"></i> Save</button>
         <button id="cancelEditBtn" class="btn-outline hidden">Cancel</button>
         <button id="hideFormBtn" class="btn-outline"><i class="fas fa-times"></i></button>
       </div>
     </div>
-    <div style="font-size: 9px; margin-top: 4px;"><i class="fas fa-magic"></i> Profit = Sell − Buy</div>
+    <div id="airtimeHint" class="info-note"><i class="fas fa-magic"></i> <span>✨ Airtime: only enter Selling → Cost = Selling × 0.98 (2% profit)</span></div>
   </div>
 
-  <!-- KPI Rows (3 rows, 3 cards each) -->
+  <!-- KPI Rows -->
   <div class="kpi-row">
     <div class="kpi-card border-blue"><i class="fas fa-receipt"></i><div class="kpi-label">TRANSACTIONS</div><div class="kpi-value" id="totalTxDisplay">—</div></div>
     <div class="kpi-card border-green"><i class="fas fa-wifi"></i><div class="kpi-label">DATA PROFIT</div><div class="kpi-value" id="dataProfitTotal">—</div></div>
@@ -210,16 +215,72 @@
   let categoryChart, providerChart;
   let isProcessing = false;
 
-  // Helper: format ISO date to YYYY-MM-DD (readable)
+  // Helper: format ISO date to YYYY-MM-DD
   function formatDate(dateString) {
     if (!dateString) return '';
-    // if already in YYYY-MM-DD format, return as is
     if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
     try {
       const d = new Date(dateString);
       if (isNaN(d.getTime())) return dateString;
       return d.toISOString().slice(0, 10);
     } catch(e) { return dateString; }
+  }
+
+  // Airtime 2% logic: when category = Airtime, cost = selling * 0.98, only selling is editable
+  const categorySelect = document.getElementById('txCategory');
+  const costInput = document.getElementById('txCostPrice');
+  const sellingInput = document.getElementById('txSellingPrice');
+  const airtimeHint = document.getElementById('airtimeHint');
+
+  function applyAirtimeLogic() {
+    const isAirtime = categorySelect.value === 'Airtime';
+    if (isAirtime) {
+      costInput.disabled = true;
+      costInput.placeholder = "Auto (2% of selling)";
+      sellingInput.disabled = false;
+      sellingInput.placeholder = "💰 Selling price only";
+      airtimeHint.innerHTML = '<i class="fas fa-percent"></i> <span class="badge-airtime">✨ AIRTIME MODE: Only enter Selling → Cost = Selling × 0.98, Profit = 2% of Selling</span>';
+      const sellVal = parseFloat(sellingInput.value);
+      if (!isNaN(sellVal) && sellVal > 0) {
+        costInput.value = (sellVal * 0.98).toFixed(2);
+      } else {
+        costInput.value = '';
+      }
+    } else {
+      costInput.disabled = false;
+      costInput.placeholder = "Cost (₦)";
+      sellingInput.disabled = false;
+      sellingInput.placeholder = "Selling (₦)";
+      airtimeHint.innerHTML = '<i class="fas fa-chart-line"></i> <span>📋 For Data/Electricity/Bills: enter both Cost and Selling. Profit = Selling − Cost.</span>';
+    }
+  }
+
+  function updateCostFromSelling() {
+    if (categorySelect.value === 'Airtime') {
+      const sellVal = parseFloat(sellingInput.value);
+      if (!isNaN(sellVal) && sellVal > 0) {
+        costInput.value = (sellVal * 0.98).toFixed(2);
+      } else {
+        costInput.value = '';
+      }
+    }
+  }
+
+  function getValidatedCostAndSelling() {
+    const category = categorySelect.value;
+    if (category === 'Airtime') {
+      let selling = parseFloat(sellingInput.value);
+      if (isNaN(selling) || selling <= 0) throw new Error("Valid selling price required for Airtime");
+      let cost = selling * 0.98;
+      return { cost: Math.round(cost * 100)/100, selling: Math.round(selling * 100)/100 };
+    } else {
+      let cost = parseFloat(costInput.value);
+      let selling = parseFloat(sellingInput.value);
+      if (isNaN(cost) || cost <= 0) throw new Error("Valid cost required");
+      if (isNaN(selling) || selling <= 0) throw new Error("Valid selling required");
+      if (selling < cost) throw new Error("Selling must be >= cost");
+      return { cost, selling };
+    }
   }
 
   function showMessage(msg, isErr = false) {
@@ -232,9 +293,7 @@
   }
 
   function getProfit(item) {
-    let profit = (item.sellingPrice || 0) - (item.costPrice || 0);
-    if (item.profit !== undefined && typeof item.profit === 'number' && !isNaN(item.profit)) profit = item.profit;
-    return isNaN(profit) ? 0 : profit;
+    return (item.sellingPrice || 0) - (item.costPrice || 0);
   }
 
   async function fetchAll() {
@@ -249,7 +308,6 @@
         provider: t.provider,
         costPrice: Number(t.cost_price) || 0,
         sellingPrice: Number(t.selling_price) || 0,
-        profit: (t.profit !== undefined && t.profit !== null) ? Number(t.profit) : (Number(t.selling_price) - Number(t.cost_price))
       }));
     } catch(e) { showMessage('Load failed: ' + e.message, true); return []; }
   }
@@ -342,7 +400,7 @@
           <span onclick="editTx(${tx.id})" class="action-edit"><i class="fas fa-pen"></i></span>
           <span onclick="deleteTx(event, ${tx.id})" class="action-delete"><i class="fas fa-trash-alt"></i></span>
         </td>
-      </tr>`;
+      </table>`;
     }).join('');
   }
 
@@ -392,15 +450,12 @@
   async function saveTransaction() {
     if (isProcessing) { showMessage("Please wait...", true); return; }
     const date = document.getElementById('txDate').value;
-    const category = document.getElementById('txCategory').value;
+    const category = categorySelect.value;
     const provider = document.getElementById('txProvider').value;
-    const cost = parseFloat(document.getElementById('txCostPrice').value);
-    const sell = parseFloat(document.getElementById('txSellingPrice').value);
     if (!date) { showMessage("Select date", true); return; }
-    if (isNaN(cost) || cost <= 0) { showMessage("Valid cost", true); return; }
-    if (isNaN(sell) || sell <= 0) { showMessage("Valid selling price", true); return; }
-    if (sell < cost) { showMessage("Selling cannot be less than cost", true); return; }
-
+    let cost, selling;
+    try { const vals = getValidatedCostAndSelling(); cost = vals.cost; selling = vals.selling; } 
+    catch (err) { showMessage(err.message, true); return; }
     const saveBtn = document.getElementById('saveTxBtn');
     isProcessing = true;
     saveBtn.disabled = true;
@@ -408,14 +463,14 @@
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i>';
     try {
       if (editModeId !== null) {
-        await updateTx(editModeId, { date, category, provider, costPrice: cost, sellingPrice: sell });
+        await updateTx(editModeId, { date, category, provider, costPrice: cost, sellingPrice: selling });
         showMessage("Updated");
         editModeId = null;
         document.getElementById('formTitle').innerHTML = "➕ NEW SALE";
         document.getElementById('cancelEditBtn').classList.add('hidden');
       } else {
-        await insertTx({ date, category, provider, costPrice: cost, sellingPrice: sell });
-        showMessage("Sale added");
+        await insertTx({ date, category, provider, costPrice: cost, sellingPrice: selling });
+        showMessage("Sale added" + (category === 'Airtime' ? " (Airtime 2% auto)" : ""));
       }
       await loadData();
       clearForm();
@@ -434,10 +489,19 @@
     if (!tx) return;
     editModeId = id;
     document.getElementById('txDate').value = tx.date;
-    document.getElementById('txCategory').value = tx.category;
     document.getElementById('txProvider').value = tx.provider;
-    document.getElementById('txCostPrice').value = tx.costPrice;
-    document.getElementById('txSellingPrice').value = tx.sellingPrice;
+    if (tx.category === 'Airtime') {
+      categorySelect.value = 'Airtime';
+      sellingInput.value = tx.sellingPrice;
+      costInput.value = (tx.sellingPrice * 0.98).toFixed(2);
+      costInput.disabled = true;
+    } else {
+      categorySelect.value = tx.category;
+      costInput.value = tx.costPrice;
+      sellingInput.value = tx.sellingPrice;
+      costInput.disabled = false;
+    }
+    applyAirtimeLogic();
     document.getElementById('formTitle').innerHTML = "✏️ EDIT SALE";
     document.getElementById('cancelEditBtn').classList.remove('hidden');
     showForm();
@@ -465,10 +529,11 @@
   }
   function clearForm() {
     document.getElementById('txDate').value = new Date().toISOString().slice(0,10);
-    document.getElementById('txCategory').value = 'Data';
+    categorySelect.value = 'Data';
     document.getElementById('txProvider').value = 'MTN';
-    document.getElementById('txCostPrice').value = '';
-    document.getElementById('txSellingPrice').value = '';
+    costInput.value = '';
+    sellingInput.value = '';
+    applyAirtimeLogic();
   }
   function showForm() { document.getElementById('saleFormContainer').classList.remove('form-hidden'); document.getElementById('saleFormContainer').classList.add('form-visible'); }
   function hideForm() { document.getElementById('saleFormContainer').classList.remove('form-visible'); document.getElementById('saleFormContainer').classList.add('form-hidden'); cancelEdit(); }
@@ -528,6 +593,9 @@
     document.getElementById('filterProvider').addEventListener('change', () => renderAll());
     document.getElementById('showFormBtn').addEventListener('click', showForm);
     document.getElementById('hideFormBtn').addEventListener('click', hideForm);
+    categorySelect.addEventListener('change', applyAirtimeLogic);
+    sellingInput.addEventListener('input', updateCostFromSelling);
+    applyAirtimeLogic();
   });
 </script>
 </body>
